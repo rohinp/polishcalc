@@ -10,6 +10,7 @@ public class PolishExprEvaluator {
     }
 
     public int evaluate(PostfixExpr expr) {
+
         return 5;
     }
 }

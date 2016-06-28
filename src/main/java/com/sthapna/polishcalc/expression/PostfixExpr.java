@@ -3,6 +3,7 @@ package com.sthapna.polishcalc.expression;
 import com.sthapna.polishcalc.parser.StringParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public class PostfixExpr {
     public static PostfixExpr build (String expression) {
         Optional<List<String>> ts = StringParser.parse(expression);
         ExprValidator.validations.forEach(e -> e.validator(ts));
-        return  new PostfixExpr(ts.get());
+        return  new PostfixExpr(Collections.unmodifiableList(ts.get()));
     }
 
     interface ExprValidator {
@@ -32,28 +33,16 @@ public class PostfixExpr {
         }};
 
         static boolean isPostfixSequenceValid(Optional<List<String>> tokens){
-            return loop(tokens.get(),0);
+            return Traversor.loop(tokens.get(),0,ExprValidator::checkSequence) == 0;
         }
 
-        static boolean loop(List<String> tokens, int counter) {
-            return (tokens.size() == 0)? counter == 0 :
-                    isOperand(tokens.get(0)) ? loop(tokens.subList(1,tokens.size()), abs(counter) + 1):
-                            isBinaryOperator(tokens.get(0)) ? loop(tokens.subList(1,tokens.size()),abs(counter) - 2):
-                                    isUnaryOperator(tokens.get(0)) ?loop(tokens.subList(1,tokens.size()),abs(counter) - 1):
-                                            loop(tokens.subList(1,tokens.size()),abs(counter));
+        static int checkSequence(int acc, ElementType elementType) {
+            return elementType == ElementType.OPR ? abs(acc) + 1:
+                    elementType == ElementType.BOPR ? abs(acc) - 2:
+                            elementType == ElementType.UOPR ? abs(acc) - 1:
+                                    abs(acc) - 1;
         }
 
-        static boolean isUnaryOperator(String element) {
-            return false;
-        }
-
-        static boolean isOperand(String element) {
-            return element.matches("\\d");
-        }
-
-        static boolean isBinaryOperator(String element) {
-            return element.matches("[+|-|*|/]");
-        }
     }
 
     public static class InvalidExpression extends RuntimeException{
