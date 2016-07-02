@@ -2,12 +2,9 @@ package com.sthapna.polishcalc.expression;
 
 import com.sthapna.polishcalc.parser.StringParser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static java.lang.Math.*;
+import static java.lang.Integer.parseInt;
 
 public class PostfixExpr {
 
@@ -33,16 +30,18 @@ public class PostfixExpr {
         }};
 
         static boolean isPostfixSequenceValid(Optional<List<String>> tokens){
-            return Traversor.loop(tokens.get(),0,ExprValidator::checkSequence) == 0;
+            return Traversor.start(tokens.get(),ExprValidator::checkSequence).size() == 1;
         }
 
-        static int checkSequence(int acc, ElementType elementType) {
-            return elementType == ElementType.OPR ? abs(acc) + 1:
-                    elementType == ElementType.BOPR ? abs(acc) - 2:
-                            elementType == ElementType.UOPR ? abs(acc) - 1:
-                                    abs(acc) - 1;
+        static Stack<Integer> checkSequence(Stack<Integer> acc, ElmType et, String token) {
+            if(et.equals(ElmType.OPERAND)) acc.push(parseInt(token));
+            if(et.equals(ElmType.UNKOWN)) acc.push(1);
+            if(et.equals(ElmType.BIOPR) && acc.size() >= 2) {
+                acc.pop();acc.pop();
+                acc.push(1);
+            }
+            return acc;
         }
-
     }
 
     public static class InvalidExpression extends RuntimeException{

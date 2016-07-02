@@ -61,5 +61,13 @@ public class PostfixExprTest {
         assertTrue(postfixExpr.tokens.size() == 3);
     }
 
+    @Test
+    public void itShouldValidateAValidPostFixExpression_MultipleOperations(){
+        //given
+
+        //when (NOTE: validation is not throwing exception)
+        PostfixExpr.build("4 2 5 * + 1 3 2 * + /");
+    }
+
 
 }
